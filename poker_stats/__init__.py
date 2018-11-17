@@ -1,10 +1,11 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import codecs
 import logging
 import sys
 
+from functools import reduce
 from . import config
 from . import hand_filter
 from . import hand_parser
@@ -24,15 +25,17 @@ def main():
     hands = hand_filter.apply_filters(hands, hand_filters)
 
     if config.action == 'dump_ps':
+        bom = codecs.BOM_UTF8.decode('utf-8')
         for idx, _ in enumerate(hands):
-            if hands[idx].lines[0].startswith(codecs.BOM_UTF8):
-                hands[idx].lines[0] = hands[idx].lines[0][len(codecs.BOM_UTF8):]
+            if hands[idx].lines[0].startswith(bom):
+                hands[idx].lines[0] = hands[idx].lines[0][len(bom):]
             hands[idx].lines[0] = hands[idx].lines[0].replace('PokerStars Zoom Hand', 'PokerStars Hand')
 
         if config.sort:
             hands = sorted(hands, key=lambda h: h.investment_for_player(config.player_name), reverse=True)
 
-        sys.stdout.write(codecs.BOM_UTF8)
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stdout.write(bom)
         sys.stdout.writelines(reduce(lambda a, h: a + h.lines, hands, []))
 
     if config.action == 'report':

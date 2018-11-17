@@ -28,5 +28,5 @@ upload: clean test
 	git push --force heroku develop:master
 
 clean:
-	find -name '*.pyc' -exec rm -f {} \;
+	find -name '*.pyc' -delete
 	-rm -rf dist build poker_stats.egg-info poker_stats/ver.py

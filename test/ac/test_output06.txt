@@ -8,7 +8,7 @@ Flat profit: -4.2
 3bet%: 6.56
 3bet profit: -2.4
 4bet%: 0.0
-4bet profit: 0.0
+4bet profit: 0
 Total net profit: -9.76
 Total net profit (/100): -5.33
 Total rake: 1.34
@@ -23,7 +23,7 @@ Flat profit: -14.17
 3bet%: 6.49
 3bet profit: -8.42
 4bet%: 0.0
-4bet profit: 0.0
+4bet profit: 0
 Total net profit: -32.95
 Total net profit (/100): -17.81
 Total rake: 0.95
@@ -36,7 +36,7 @@ PFR profit: -13.09
 Flat%: 0.53
 Flat profit: -0.55
 3bet%: 0.0
-3bet profit: 0.0
+3bet profit: 0
 4bet%: 0.53
 4bet profit: -2.0
 Total net profit: -13.64
@@ -53,7 +53,7 @@ Flat profit: 7.07
 3bet%: 1.07
 3bet profit: -1.3
 4bet%: 0.0
-4bet profit: 0.0
+4bet profit: 0
 Total net profit: -14.05
 Total net profit (/100): -7.51
 Total rake: 1.63

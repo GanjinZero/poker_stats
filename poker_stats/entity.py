@@ -1,7 +1,8 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from enum import Enum
+from functools import reduce
 
 class ActionType(Enum): # pylint: disable=too-few-public-methods
     Fold = 'f'
@@ -15,7 +16,7 @@ class ActionType(Enum): # pylint: disable=too-few-public-methods
     Post = 'p'
     Uncalled = 'u'
 
-class Action(object): # pylint: disable=too-few-public-methods
+class Action: # pylint: disable=too-few-public-methods
     def __init__(self, atype, avalue=0):
         self.type = atype
         self.value = avalue
@@ -34,14 +35,14 @@ class Action(object): # pylint: disable=too-few-public-methods
     def is_all_in(self):
         return self.type in [ActionType.BetAi, ActionType.RaiseAi, ActionType.CallAi]
 
-class Player(object): # pylint: disable=too-few-public-methods
+class Player: # pylint: disable=too-few-public-methods
     def __init__(self):
         self.name = None
         self.position = None
         self.holding = None
         self.collected = 0.00
 
-class Hand(object): # pylint: disable=too-many-instance-attributes
+class Hand: # pylint: disable=too-many-instance-attributes
     def __init__(self):
         self.id = None
         self.lines = []
@@ -69,7 +70,7 @@ class Hand(object): # pylint: disable=too-many-instance-attributes
         def invested(acc, action):
             if action.is_raise():
                 return action.value
-            elif action.type == ActionType.Uncalled:
+            if action.type == ActionType.Uncalled:
                 return acc - action.value
             return acc + action.value
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -15,7 +15,7 @@ class hand_parser_tests(unittest.TestCase):
 
     def assertLine(self, expected, actual):
         self.assertEqual(len(expected), len(actual))
-        for i in xrange(len(expected)):
+        for i in range(len(expected)):
             self.assertEqual(expected[i].type, actual[i].type)
             self.assertEqual(expected[i].value, actual[i].value)
 

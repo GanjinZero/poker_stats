@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import setuptools
@@ -18,14 +18,14 @@ setuptools.setup(name='poker_stats',
       description='Statistics generator for poker hands played online',
       long_description='Statistics generator for poker hands played online',
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 3 - Alpha',
           'Intended Audience :: End Users/Desktop',
           'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python :: 2.7'],
+          'Programming Language :: Python :: 3.7'],
       keywords='poker holdem stats statistics',
       license='MIT',
       packages=setuptools.find_packages(exclude=['test', 'test.ut']),
       entry_points={'console_scripts':['poker_stats = poker_stats:main']},
-      python_requires='>=2.7, <3',
-      install_requires=['enum34>=1.1.6', 'pyparsing>=2.2.0']
+      python_requires='>=3.7',
+      install_requires=['pyparsing>=2.3.0']
 )

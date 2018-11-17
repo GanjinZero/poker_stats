@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -22,7 +22,7 @@ def cards_to_holding(cards):
 
     return card1 + card2 + (suitedness if card1 != card2 else '')
 
-class Parser(object): # pylint: disable=too-many-instance-attributes
+class Parser: # pylint: disable=too-many-instance-attributes
     def __init__(self):
         self.amt_re = r'\$(\d+(.\d+)?)'
         self.player_re = r'(\S+(\s+\S+)*)'
@@ -67,49 +67,49 @@ class Parser(object): # pylint: disable=too-many-instance-attributes
 
     def parse_game_info(self, hand):
         m_res = re.match(self.game_info_re, hand.lines[0])
-        if m_res != None:
+        if m_res is not None:
             hand.id = m_res.groups()[1]
             hand.stakes = (float(m_res.groups()[3]), float(m_res.groups()[5]))
 
     def parse_table_info(self, hand):
         m_res = re.match(self.table_info_re, hand.lines[1])
-        if m_res != None:
+        if m_res is not None:
             # currently not used
             pass
 
     def parse_player_info(self, hand):
         idx = 2
-        for idx in xrange(2, 2 + 6):
+        for idx in range(2, 2 + 6):
             m_res = re.match(self.player_info_re, hand.lines[idx])
-            if m_res != None:
+            if m_res is not None:
                 player = Player()
-                player.name = m_res.groups()[1].decode('utf-8')
+                player.name = m_res.groups()[1]
                 player.position = self.seat_to_position[m_res.groups()[0]]
                 hand.players[player.name] = player
         return idx + 1
 
     def parse_blind_posts(self, hand, idx):
         m_res = re.match(self.post_re, hand.lines[idx])
-        if m_res != None:
+        if m_res is not None:
             action = Action(ActionType.Post, float(m_res.groups()[3]))
-            action.player = hand.players[m_res.groups()[0].decode('utf-8')]
+            action.player = hand.players[m_res.groups()[0]]
             hand.preflop.append(action)
 
     def parse_action(self, hand, idx, inserter): # pylint: disable=too-many-locals
-        fold_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.Fold))
-        check_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.Check))
-        call_ai_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.CallAi, float(m[2])))
-        call_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.Call, float(m[2])))
-        bet_ai_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.BetAi, float(m[2])))
-        bet_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.Bet, float(m[2])))
-        raise_ai_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.RaiseAi, float(m[4])))
-        raise_mod = lambda m: inserter(hand, m[0].decode('utf-8'), Action(ActionType.Raise, float(m[4])))
-        uncalled_mod = lambda m: inserter(hand, m[2].decode('utf-8'), Action(ActionType.Uncalled, float(m[0])))
-        collected_mod = lambda m: setattr(hand.players[m[0].decode('utf-8')], 'collected', hand.players[m[0].decode('utf-8')].collected + float(m[2]))
+        fold_mod = lambda m: inserter(hand, m[0], Action(ActionType.Fold))
+        check_mod = lambda m: inserter(hand, m[0], Action(ActionType.Check))
+        call_ai_mod = lambda m: inserter(hand, m[0], Action(ActionType.CallAi, float(m[2])))
+        call_mod = lambda m: inserter(hand, m[0], Action(ActionType.Call, float(m[2])))
+        bet_ai_mod = lambda m: inserter(hand, m[0], Action(ActionType.BetAi, float(m[2])))
+        bet_mod = lambda m: inserter(hand, m[0], Action(ActionType.Bet, float(m[2])))
+        raise_ai_mod = lambda m: inserter(hand, m[0], Action(ActionType.RaiseAi, float(m[4])))
+        raise_mod = lambda m: inserter(hand, m[0], Action(ActionType.Raise, float(m[4])))
+        uncalled_mod = lambda m: inserter(hand, m[2], Action(ActionType.Uncalled, float(m[0])))
+        collected_mod = lambda m: setattr(hand.players[m[0]], 'collected', hand.players[m[0]].collected + float(m[2]))
 
         def match_and_return_index(idx, hand, pattern, modifier):
             m_res = re.match(pattern, hand.lines[idx])
-            if m_res != None:
+            if m_res is not None:
                 modifier(m_res.groups())
                 return idx + 1
             return idx
@@ -143,7 +143,7 @@ class Parser(object): # pylint: disable=too-many-instance-attributes
         idx += 1
         m_res = re.match(self.dealt_re, hand.lines[idx])
         while m_res is not None:
-            hand.players[m_res.groups()[0].decode('utf-8')].holding = cards_to_holding(m_res.groups()[2])
+            hand.players[m_res.groups()[0]].holding = cards_to_holding(m_res.groups()[2])
             idx += 1
             m_res = re.match(self.dealt_re, hand.lines[idx])
 
@@ -187,7 +187,7 @@ class Parser(object): # pylint: disable=too-many-instance-attributes
         return self.parse_action(hand, idx + 1, insert_action)
 
     def parse_summary(self, hand, idx): # pylint: disable=no-self-use
-        for i in xrange(idx, len(hand.lines)):
+        for i in range(idx, len(hand.lines)):
             if '*** SUMMARY ***' in hand.lines[i]:
                 m_res = re.match(self.pot_re, hand.lines[i+1])
                 if m_res:
@@ -219,7 +219,7 @@ class Parser(object): # pylint: disable=too-many-instance-attributes
                 hand.lines.append(line)
             else:
                 if hand_in_process:
-                    hand.lines.extend(['\r\n' for _ in range(0, 3)])
+                    hand.lines.extend(['\n' for _ in range(0, 3)])
 
                     if self.parse_hand(hand):
                         if not store_lines:
@@ -240,7 +240,7 @@ def parse_files(file_names, store_lines=False):
             files_in_dir = [os.path.join(file_name, f) for f in os.listdir(file_name)]
             hands.extend(parse_files(files_in_dir, store_lines))
         else:
-            with open(file_name, 'r') as file_desc:
+            with open(file_name, 'r', encoding='utf-8') as file_desc:
                 lines = file_desc.readlines()
             hands.extend(parser.parse_file_contents(lines, store_lines))
 

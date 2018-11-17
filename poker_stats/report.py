@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from .entity import is_successful_steal_preflop, is_unsuccessful_steal_preflop, profit_for_player, rake_for_player # pylint: disable=no-name-in-module
@@ -11,7 +11,7 @@ def div(num1, num2):
         return 0.00
     return round(float(num1) / num2, 2)
 
-class BlindReport(object): # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class BlindReport: # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self):
         self.sb_expected_profit = 0
         self.sb_expected_vpip_profit = 0
@@ -26,7 +26,7 @@ class BlindReport(object): # pylint: disable=too-many-instance-attributes,too-fe
         self.bb_forced_profit = 0
         self.bb_report = None
 
-class ProfitReport(object): # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class ProfitReport: # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self):
         self.hand_count = 0
         self.profit = 0
@@ -42,12 +42,12 @@ class ProfitReport(object): # pylint: disable=too-many-instance-attributes,too-f
         self.fourbet = 0
         self.fourbet_profit = 0
 
-class PositionReport(object): # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class PositionReport: # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self):
         self.position = None
         self.profit_report = 0
 
-class PreflopReport(object): # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class PreflopReport: # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self):
         self.steal_success = 0
         self.steal_fail = 0
@@ -56,8 +56,8 @@ class PreflopReport(object): # pylint: disable=too-many-instance-attributes,too-
         self.ai_preflop_profit = 0
         self.profit_report = None
 
-class HoldingReport(object): # pylint: disable=too-few-public-methods
-    class HoldingProfit(object): # pylint: disable=too-few-public-methods
+class HoldingReport: # pylint: disable=too-few-public-methods
+    class HoldingProfit: # pylint: disable=too-few-public-methods
         def __init__(self, holding, profit, holding_count):
             self.holding = holding
             self.profit = profit
@@ -157,7 +157,7 @@ def create_holding_report(hands, player_name):
         (old.profit, old.holding_count) = (round(old.profit + hand.profit_for_player(player_name), 2), old.holding_count + 1)
         stats[holding] = old
 
-    for val in stats.itervalues():
+    for val in stats.values():
         report.stats.append(val)
     report.stats = sorted(report.stats, key=lambda e: e.profit)
 
