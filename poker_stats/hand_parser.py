@@ -29,19 +29,16 @@ class Parser: # pylint: disable=too-many-instance-attributes
 
         # Example:
         # PokerStars Hand #1:  Hold'em No Limit ($0.05/$0.10) - 2017/08/07 23:12:54 CCT [2017/08/07 11:12:54 ET]
-        self.game_info_re = re.compile(r'.*?(\w+) Hand #(\d+):\s+(\w.+)\s\(%s/%s\)' \
+        self.game_info_re = re.compile(r'.*?Hand #(\d+):.*\(%s/%s(\s\w+)?\)' \
             % (self.amt_re, self.amt_re))
 
         # Example:
         # Table 'Aludra' 6-max Seat #1 is the button
-        self.table_info_re = re.compile(r'Table \'(.*)\' (\S+)')
+        self.table_info_re = re.compile(r'Table .*Seat #(\d+) is the button')
 
         # Example:
         # Seat 1: PLAYER_BTN ($21.05 in chips)
         self.player_info_re = re.compile(r'Seat (\d+): %s \(%s' % (self.player_re, self.amt_re))
-
-        self.table_type_to_player_count = {'6-max': 6, '9-max': 9, '10-max': 10, 'heads-up': 2}
-        self.seat_to_position = {'1':'BTN', '2':'SB', '3':'BB', '4':'UTG', '5':'MP', '6':'CO'}
 
         # Example:
         # Dealt to PLAYER_CO [Ah Ac]
@@ -68,25 +65,53 @@ class Parser: # pylint: disable=too-many-instance-attributes
     def parse_game_info(self, hand):
         m_res = re.match(self.game_info_re, hand.lines[0])
         if m_res is not None:
-            hand.id = m_res.groups()[1]
-            hand.stakes = (float(m_res.groups()[3]), float(m_res.groups()[5]))
+            hand.id = m_res.groups()[0]
+            hand.stakes = (float(m_res.groups()[2]), float(m_res.groups()[4]))
+        else:
+            raise Exception("Error parsing parse_game_info")
 
     def parse_table_info(self, hand):
         m_res = re.match(self.table_info_re, hand.lines[1])
         if m_res is not None:
-            # currently not used
-            pass
+            return m_res.groups()[0]
+        raise Exception("Error parsing parse_game_info")
 
-    def parse_player_info(self, hand):
-        idx = 2
-        for idx in range(2, 2 + 6):
+    def get_seat_to_position(self, player_position, button_position, player_count):
+        if player_count == 2:
+            m = ['BTN', 'BB']
+        if player_count == 3:
+            m = ['BTN', 'SB', 'BB']
+        if player_count == 4:
+            m = ['BTN', 'SB', 'BB', 'UTG']
+        if player_count == 5:
+            m = ['BTN', 'SB', 'BB', 'UTG', 'CO']
+        if player_count == 6:
+            m = ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO']
+        return m[(player_position - button_position) % player_count]
+
+    def parse_player_info(self, hand, button_seat):
+        current_line = 2
+        player_count = 0
+        button_position = 0
+
+        for idx in range(current_line, current_line + 6):
+            m_res = re.match(self.player_info_re, hand.lines[idx])
+            if m_res is not None:
+                player_count += 1
+                if m_res.groups()[0] == button_seat:
+                    button_position = player_count - 1
+
+        player_position = 0
+        for idx in range(current_line, current_line + 6):
             m_res = re.match(self.player_info_re, hand.lines[idx])
             if m_res is not None:
                 player = Player()
                 player.name = m_res.groups()[1]
-                player.position = self.seat_to_position[m_res.groups()[0]]
+                player.position = self.get_seat_to_position(player_position, button_position, player_count)
                 hand.players[player.name] = player
-        return idx + 1
+                player_position += 1
+
+        return current_line + player_count
 
     def parse_blind_posts(self, hand, idx):
         m_res = re.match(self.post_re, hand.lines[idx])
@@ -94,6 +119,8 @@ class Parser: # pylint: disable=too-many-instance-attributes
             action = Action(ActionType.Post, float(m_res.groups()[3]))
             action.player = hand.players[m_res.groups()[0]]
             hand.preflop.append(action)
+        else:
+            raise Exception("Error parsing parse_blind_posts")
 
     def parse_action(self, hand, idx, inserter): # pylint: disable=too-many-locals
         fold_mod = lambda m: inserter(hand, m[0], Action(ActionType.Fold))
@@ -197,8 +224,8 @@ class Parser: # pylint: disable=too-many-instance-attributes
 
     def parse_hand(self, hand):
         self.parse_game_info(hand)
-        self.parse_table_info(hand)
-        idx = self.parse_player_info(hand)
+        button_seat = self.parse_table_info(hand)
+        idx = self.parse_player_info(hand, button_seat)
         self.parse_blind_posts(hand, idx)
         self.parse_blind_posts(hand, idx+1)
         idx = self.parse_preflop_action(hand, idx+2)

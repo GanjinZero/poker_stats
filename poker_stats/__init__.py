@@ -30,6 +30,7 @@ def main():
             if hands[idx].lines[0].startswith(bom):
                 hands[idx].lines[0] = hands[idx].lines[0][len(bom):]
             hands[idx].lines[0] = hands[idx].lines[0].replace('PokerStars Zoom Hand', 'PokerStars Hand')
+            hands[idx].lines[0] = hands[idx].lines[0].replace('PokerStars Home Game Hand', 'PokerStars Hand')
 
         if config.sort:
             hands = sorted(hands, key=lambda h: h.investment_for_player(config.player_name), reverse=True)
