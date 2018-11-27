@@ -13,7 +13,7 @@ run_tc()
     out=$3
 
     echo "RUN TC$tc_counter: ('$prog $test_dir/$inp' vs. '$test_dir/$out')"
-    $prog $test_dir/$inp 2>/dev/null | diff -u - $test_dir/$out >/dev/null
+    $prog $test_dir/$inp 2>/dev/null | diff -uZ - $test_dir/$out >/dev/null
     if [ $? -eq 0 ]; then
         echo "RUN TC$tc_counter: OK"
     else

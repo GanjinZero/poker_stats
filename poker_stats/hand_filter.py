@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from functools import reduce
-from .entity import is_holding_matching, is_call_preflop, is_player_ai, is_raise_preflop, is_3bet_preflop, is_4bet_preflop # pylint: disable=no-name-in-module
+from .entity import is_holding_matching, is_call_preflop, is_player_ai, is_raise_preflop
+from .entity import can_3bet_preflop, is_3bet_preflop, is_4bet_preflop
 
 def create_player_filter(player_name):
     return lambda h: player_name in h.players
@@ -24,6 +25,9 @@ def create_call_pf_filter(player_name):
 
 def create_pfr_filter(player_name):
     return lambda h: is_raise_preflop(h.preflop, player_name)
+
+def create_can_3bet_filter(player_name):
+    return lambda h: can_3bet_preflop(h.preflop, player_name)
 
 def create_3bet_filter(player_name):
     return lambda h: is_3bet_preflop(h.preflop, player_name)

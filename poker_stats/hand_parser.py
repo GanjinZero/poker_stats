@@ -22,6 +22,19 @@ def cards_to_holding(cards):
 
     return card1 + card2 + (suitedness if card1 != card2 else '')
 
+def get_seat_to_position(player_position, button_position, player_count):
+    if player_count == 2:
+        pos = ['BTN', 'BB']
+    if player_count == 3:
+        pos = ['BTN', 'SB', 'BB']
+    if player_count == 4:
+        pos = ['BTN', 'SB', 'BB', 'UTG']
+    if player_count == 5:
+        pos = ['BTN', 'SB', 'BB', 'UTG', 'CO']
+    if player_count == 6:
+        pos = ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO']
+    return pos[(player_position - button_position) % player_count]
+
 class Parser: # pylint: disable=too-many-instance-attributes
     def __init__(self):
         self.amt_re = r'\$(\d+(.\d+)?)'
@@ -76,19 +89,6 @@ class Parser: # pylint: disable=too-many-instance-attributes
             return m_res.groups()[0]
         raise Exception("Error parsing parse_game_info")
 
-    def get_seat_to_position(self, player_position, button_position, player_count):
-        if player_count == 2:
-            m = ['BTN', 'BB']
-        if player_count == 3:
-            m = ['BTN', 'SB', 'BB']
-        if player_count == 4:
-            m = ['BTN', 'SB', 'BB', 'UTG']
-        if player_count == 5:
-            m = ['BTN', 'SB', 'BB', 'UTG', 'CO']
-        if player_count == 6:
-            m = ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO']
-        return m[(player_position - button_position) % player_count]
-
     def parse_player_info(self, hand, button_seat):
         current_line = 2
         player_count = 0
@@ -107,7 +107,7 @@ class Parser: # pylint: disable=too-many-instance-attributes
             if m_res is not None:
                 player = Player()
                 player.name = m_res.groups()[1]
-                player.position = self.get_seat_to_position(player_position, button_position, player_count)
+                player.position = get_seat_to_position(player_position, button_position, player_count)
                 hand.players[player.name] = player
                 player_position += 1
 

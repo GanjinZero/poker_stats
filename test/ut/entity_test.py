@@ -25,6 +25,7 @@ villain = 'VILLAIN'
 villain1 = 'VILLAIN1'
 villain2 = 'VILLAIN2'
 villain3 = 'VILLAIN3'
+villain4 = 'VILLAIN4'
 
 class Test_is_call_preflop(TestCase):
     def test_no_actions(self):
@@ -158,6 +159,52 @@ class Test_is_unsuccessful_steal_preflop(TestCase):
         acts = actions((hero, ActionType.Raise), (villain1, ActionType.Raise), (villain2, ActionType.Raise),\
                        (hero, ActionType.Fold))
         self.assertTrue(is_unsuccessful_steal_preflop(acts, hero))
+
+class Test_can_3bet_preflop(TestCase):
+    def test_no_actions(self):
+        acts = actions()
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_one_action_hero(self):
+        acts = actions((hero, ActionType.Post))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_one_action_villain(self):
+        acts = actions((villain, ActionType.Post))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_open_raise(self):
+        acts = actions((villain1, ActionType.Post), (villain2, ActionType.Post),\
+                       (villain3, ActionType.Post), (hero, ActionType.Raise))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_isolate_limper(self):
+        acts = actions((villain1, ActionType.Post), (villain2, ActionType.Post),\
+                       (villain3, ActionType.Call), (hero, ActionType.Raise))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_cold_4bet_from_co(self):
+        acts = actions((villain1, ActionType.Post), (villain2, ActionType.Post),\
+                       (villain3, ActionType.Raise), (villain4, ActionType.Raise),\
+                       (hero, ActionType.Raise))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_cold_4bet_from_sb(self):
+        acts = actions((hero, ActionType.Post), (villain1, ActionType.Post),\
+                       (villain2, ActionType.Raise), (villain3, ActionType.Raise),\
+                       (hero, ActionType.Raise))
+        self.assertFalse(can_3bet_preflop(acts, hero))
+
+    def test_3bet_opener(self):
+        acts = actions((villain1, ActionType.Post), (villain2, ActionType.Post),\
+                       (villain3, ActionType.Raise), (hero, ActionType.Raise))
+        self.assertTrue(can_3bet_preflop(acts, hero))
+
+    def test_squeeze_from_bb(self):
+        acts = actions((villain1, ActionType.Post), (hero, ActionType.Post),\
+                       (villain2, ActionType.Raise), (villain3, ActionType.Call),\
+                       (villain1, ActionType.Call), (hero, ActionType.Raise))
+        self.assertTrue(can_3bet_preflop(acts, hero))
 
 class Test_is_3bet_preflop(TestCase):
     def test_no_actions(self):

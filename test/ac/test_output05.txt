@@ -5,7 +5,7 @@ PFR%: 16.39
 PFR profit: 1.44
 Flat%: 7.1
 Flat profit: -4.2
-3bet%: 6.56
+3bet%: 50.0
 3bet profit: -2.4
 4bet%: 0.0
 4bet profit: 0
@@ -25,7 +25,7 @@ PFR%: 6.49
 PFR profit: -8.42
 Flat%: 12.97
 Flat profit: -14.17
-3bet%: 6.49
+3bet%: 33.33
 3bet profit: -8.42
 4bet%: 0.0
 4bet profit: 0

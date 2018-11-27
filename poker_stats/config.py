@@ -67,7 +67,8 @@ def parse_and_validate_args():
     global action, files, player_name, sort
     args = parse_args()
     action = args.action
-    files = args.files
+    if args.__contains__('files') and args.files:
+        files = args.files
     if args.__contains__('sort') and args.sort:
         sort = args.sort
     if args.__contains__('filter') and args.filter:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .entity import is_successful_steal_preflop, is_unsuccessful_steal_preflop, profit_for_player, rake_for_player # pylint: disable=no-name-in-module
-from .hand_filter import apply_filter, create_call_pf_filter, create_pfr_filter, create_3bet_filter
+from .hand_filter import apply_filter, create_call_pf_filter, create_pfr_filter, create_can_3bet_filter, create_3bet_filter
 from .hand_filter import create_4bet_filter, create_position_filter
 from .hand_filter import create_preflop_ai_filter, create_voluntary_filter
 
@@ -99,6 +99,7 @@ def create_profit_report(hands, player_name):
     voluntary_hands = apply_filter(hands, create_voluntary_filter(player_name, 'only'))
     pfr_hands = apply_filter(voluntary_hands, create_pfr_filter(player_name))
     flat_hands = apply_filter(voluntary_hands, create_call_pf_filter(player_name))
+    can_threebet_hands = apply_filter(voluntary_hands, create_can_3bet_filter(player_name))
     threebet_hands = apply_filter(voluntary_hands, create_3bet_filter(player_name))
     fourbet_hands = apply_filter(voluntary_hands, create_4bet_filter(player_name))
 
@@ -114,7 +115,7 @@ def create_profit_report(hands, player_name):
     report.pfr_profit = profit_for_player(pfr_hands, player_name)
     report.flat = div(len(flat_hands) * 100, hands_len)
     report.flat_profit = profit_for_player(flat_hands, player_name)
-    report.threebet = div(len(threebet_hands) * 100, hands_len)
+    report.threebet = div(len(threebet_hands) * 100, len(can_threebet_hands))
     report.threebet_profit = profit_for_player(threebet_hands, player_name)
     report.fourbet = div(len(fourbet_hands) * 100, hands_len)
     report.fourbet_profit = profit_for_player(fourbet_hands, player_name)

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from enum import Enum
-from functools import reduce
+import enum
+import functools
 
-class ActionType(Enum): # pylint: disable=too-few-public-methods
+class ActionType(enum.Enum): # pylint: disable=too-few-public-methods
     Fold = 'f'
     Check = 'x'
     Call = 'c'
@@ -22,6 +22,9 @@ class Action: # pylint: disable=too-few-public-methods
         self.value = avalue
         self.player = None
 
+    def is_post(self):
+        return self.type == ActionType.Post
+
     def is_call(self):
         return self.type in [ActionType.Call, ActionType.CallAi]
 
@@ -29,8 +32,8 @@ class Action: # pylint: disable=too-few-public-methods
         return self.type in [ActionType.Raise, ActionType.RaiseAi]
 
     def is_voluntary(self):
-        return self.type in [ActionType.Call, ActionType.CallAi, ActionType.Bet, ActionType.BetAi,\
-                             ActionType.Raise, ActionType.RaiseAi]
+        return self.type in [ActionType.Call, ActionType.CallAi, ActionType.Bet,\
+                             ActionType.BetAi, ActionType.Raise, ActionType.RaiseAi]
 
     def is_all_in(self):
         return self.type in [ActionType.BetAi, ActionType.RaiseAi, ActionType.CallAi]
@@ -74,10 +77,10 @@ class Hand: # pylint: disable=too-many-instance-attributes
                 return acc - action.value
             return acc + action.value
 
-        return reduce(invested, self.preflop_actions(player_name), 0) \
-               + reduce(invested, self.flop_actions(player_name), 0) \
-               + reduce(invested, self.turn_actions(player_name), 0) \
-               + reduce(invested, self.river_actions(player_name), 0)
+        return functools.reduce(invested, self.preflop_actions(player_name), 0) \
+               + functools.reduce(invested, self.flop_actions(player_name), 0) \
+               + functools.reduce(invested, self.turn_actions(player_name), 0) \
+               + functools.reduce(invested, self.river_actions(player_name), 0)
 
     def profit_for_player(self, player_name):
         return self.players[player_name].collected - self.investment_for_player(player_name)
@@ -86,10 +89,10 @@ class Hand: # pylint: disable=too-many-instance-attributes
         return self.rake if self.players[player_name].collected > 0 else 0
 
 def profit_for_player(hands, player_name):
-    return round(reduce(lambda acc, h: acc + h.profit_for_player(player_name), hands, 0), 2)
+    return round(functools.reduce(lambda acc, h: acc + h.profit_for_player(player_name), hands, 0), 2)
 
 def rake_for_player(hands, player_name):
-    return round(reduce(lambda acc, h: acc + h.rake_for_player(player_name), hands, 0), 2)
+    return round(functools.reduce(lambda acc, h: acc + h.rake_for_player(player_name), hands, 0), 2)
 
 def is_holding_matching(hand, player_name, holding):
     ph = hand.players.get(player_name, None)
@@ -117,6 +120,10 @@ def is_successful_steal_preflop(actions, player_name):
 def is_unsuccessful_steal_preflop(actions, player_name):
     return not is_3bet_preflop(actions, player_name) and \
            [ActionType.Raise, ActionType.Fold] == [a.type for a in actions if a.player.name == player_name]
+
+def can_3bet_preflop(actions, name):
+    act = [a for a in actions if not a.is_post() and (a.is_raise() or a.player.name == name)]
+    return len(actions) >= 2 and act[0].player.name != name and act[1].player.name == name
 
 def is_3bet_preflop(actions, player_name):
     raises = [a for a in actions if a.is_raise()]

@@ -6,7 +6,7 @@ test: ut_test ac_test lint
 
 ut_test:
 	coverage run --branch --source=poker_stats -m unittest discover -v test/ut '*_test.py'
-	coverage report --omit='*/__init__.py,*/__main__.py,*/api.py,*/config.py,*/report_printer.py,*/ver.py'
+	coverage report --show-missing --omit='*/__init__.py,*/__main__.py,*/api.py,*/config.py,*/report_printer.py,*/ver.py'
 
 ac_test:
 	test/ac/ac_test.sh
